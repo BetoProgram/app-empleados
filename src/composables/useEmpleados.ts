@@ -5,6 +5,7 @@ import { Empleado } from '../interfaces/Empleados';
 export function useEmpleados(){
     const empleados = ref<Empleado[]>([]);
     const error = ref(null);
+    const btnClose = ref()
 
     const obtenerEmpleados = async() => {
         try{
@@ -15,5 +16,14 @@ export function useEmpleados(){
         }
     }
 
-    return { empleados, error, obtenerEmpleados }
+    const guardarEmpleado =async(empleado:Empleado)=> {
+        try{
+            await httpConfig.post('/empleados', empleado);
+            btnClose.value.click();
+        }catch(ex:any){
+            error.value = ex;
+        }
+    }
+
+    return { empleados, error, btnClose ,obtenerEmpleados, guardarEmpleado }
 }

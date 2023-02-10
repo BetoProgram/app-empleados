@@ -32,7 +32,7 @@
     <h5>No ya datos</h5>
   </div>
   <ModalForm :modalTitulo="'Nuevo'">
-    <FormEmpleado :empleado="empleadoEdit" />
+    <FormEmpleado :empleado="empleadoEdit" @cerrar-modal="obtenerEmpleados" />
   </ModalForm>
 </template>
 <script lang="ts" setup>
@@ -44,6 +44,7 @@ import { Empleado } from '../../interfaces/Empleados';
 
 const { empleados, obtenerEmpleados } = useEmpleados();
 const empleadoEdit = ref({});
+const btnClose = ref()
 
 onBeforeMount(async () => {
   await obtenerEmpleados();

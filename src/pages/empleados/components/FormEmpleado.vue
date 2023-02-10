@@ -79,10 +79,15 @@
   </form>
 </template>
 <script lang="ts" setup>
-import { defineProps, defineEmits,ref, toRef } from 'vue';
+import { ref, toRef } from 'vue';
 import flatPickr from 'vue-flatpickr-component';
 import "flatpickr/dist/flatpickr.css";
 import { Empleado } from '../../../interfaces/Empleados';
+import { useEmpleados } from '../../../composables';
+import { useEmpleadosStored } from '../../../stored/useEmpleadosStored';
+
+//const { guardarEmpleado } = useEmpleados();
+const { guardarEmpleado } = useEmpleadosStored()
 
 const dateConfig = ref({
   dateFormat: "Y-m-d",
@@ -91,12 +96,12 @@ const dateConfig = ref({
 })
 const props = defineProps(['empleado'])
 const empleadoProp = toRef(props, 'empleado');
-const date = ref(null);
+const emit = defineEmits(['cerrarModal'])
 
-
-const enviarForm = () => {
-  console.log(empleadoProp.value)
-  
+const enviarForm = async() => {
+  await guardarEmpleado(empleadoProp.value);
+  //await guardarEmpleado(empleadoProp.value);
+  emit("cerrarModal");
 }
 
 </script>

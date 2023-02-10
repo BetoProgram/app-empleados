@@ -10,14 +10,20 @@
                     <slot />
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" ref="btnClose" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import { defineProps } from 'vue';
-
+import { storeToRefs } from 'pinia'
+import { ref } from 'vue';
+import { useEmpleados } from '../../composables';
+import { useEmpleadosStored } from '../../stored/useEmpleadosStored'
 const props = defineProps(['modalTitulo'])
+const store = useEmpleadosStored();
+const { btnClose } = storeToRefs(store);
+
+
 </script>
