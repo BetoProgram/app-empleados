@@ -87,7 +87,7 @@ import { useEmpleados } from '../../../composables';
 import { useEmpleadosStored } from '../../../stored/useEmpleadosStored';
 
 //const { guardarEmpleado } = useEmpleados();
-const { guardarEmpleado } = useEmpleadosStored()
+const { guardarEmpleado, actualizaEmpleado } = useEmpleadosStored()
 
 const dateConfig = ref({
   dateFormat: "Y-m-d",
@@ -99,8 +99,14 @@ const empleadoProp = toRef(props, 'empleado');
 const emit = defineEmits(['cerrarModal'])
 
 const enviarForm = async() => {
-  await guardarEmpleado(empleadoProp.value);
-  //await guardarEmpleado(empleadoProp.value);
+  const emp = empleadoProp.value;
+
+  if(emp.empleadoId){
+    await actualizaEmpleado(emp.empleadoId, emp);
+  }else{
+    await guardarEmpleado(empleadoProp.value);
+  }
+
   emit("cerrarModal");
 }
 

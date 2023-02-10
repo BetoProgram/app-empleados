@@ -28,6 +28,15 @@ export const useEmpleadosStored = defineStore('storedEmpleado', {
         }catch(ex:any){
             this.error = ex;
         }
+    },
+    async actualizaEmpleado(id:number,empleado:Empleado){
+        try{
+            await httpConfig.put(`/empleados/${id}`, empleado);
+
+            this.btnClose.click();
+        }catch(ex:any){
+            this.error = ex;
+        }
     }
   }
 })

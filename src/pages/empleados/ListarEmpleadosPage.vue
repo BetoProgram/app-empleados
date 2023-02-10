@@ -44,7 +44,6 @@ import { Empleado } from '../../interfaces/Empleados';
 
 const { empleados, obtenerEmpleados } = useEmpleados();
 const empleadoEdit = ref({});
-const btnClose = ref()
 
 onBeforeMount(async () => {
   await obtenerEmpleados();
