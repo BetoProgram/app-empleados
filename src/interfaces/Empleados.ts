@@ -11,3 +11,13 @@ export interface Empleado {
     fechaContratacion: Date;
     salario: number;
 }
+
+export class EmpleadoRequest {
+    empleadoId: number = 0;
+    nombre: string = '';
+    apellido: string = '';
+    telefono: string = '';
+    email: string = '';
+    fechaContratacion: Date = new Date;
+    direccion: string = '';
+}

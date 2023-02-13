@@ -10,7 +10,11 @@
         id="nombre"
         v-model="empleado.nombre"
         placeholder="Escribe un nombre"
+        @change="$v.nombre.$touch" 
       />
+      <span v-if="$v.nombre.$error" class="text-danger">
+          {{ $v.nombre.$errors[0].$message }}
+      </span>
     </div>
 
     <div class="mb-3">
@@ -23,7 +27,11 @@
         id="apellido"
         v-model="empleado.apellido"
         placeholder="Escribe un apellido"
+        @change="$v.apellido.$touch" 
       />
+      <span v-if="$v.apellido.$error" class="text-danger">
+          {{ $v.apellido.$errors[0].$message }}
+      </span>
     </div>
 
     <div class="mb-3">
@@ -36,7 +44,11 @@
         id="telefono"
         v-model="empleado.telefono"
         placeholder="Escribe un Telefono"
+        @change="$v.telefono.$touch" 
       />
+      <span v-if="$v.telefono.$error" class="text-danger">
+          {{ $v.telefono.$errors[0].$message }}
+      </span>
     </div>
 
     <div class="mb-3">
@@ -49,7 +61,11 @@
         id="email"
         v-model="empleado.email"
         placeholder="Escribe un Correo Electronico"
+        @change="$v.email.$touch" 
       />
+      <span v-if="$v.email.$error" class="text-danger">
+          {{ $v.email.$errors[0].$message }}
+      </span>
     </div>
 
     <div class="mb-3">
@@ -58,7 +74,11 @@
       >
     
       <flat-pickr class="form-control" 
-      v-model="empleado.fechaContratacion" :config="dateConfig"></flat-pickr>
+      v-model="empleado.fechaContratacion" :config="dateConfig" @change="$v.fechaContratacion.$touch" ></flat-pickr>
+
+      <span v-if="$v.fechaContratacion.$error" class="text-danger">
+          {{ $v.fechaContratacion.$errors[0].$message }}
+      </span>
     </div>
 
     <div class="mb-3">
@@ -70,7 +90,11 @@
         id="dir"
         rows="3"
         v-model="empleado.direccion"
+        @change="$v.direccion.$touch"
       ></textarea>
+      <span v-if="$v.direccion.$error" class="text-danger">
+          {{ $v.direccion.$errors[0].$message }}
+      </span>
     </div>
     <div class="mb-3">
       <button type="submit" class="btn btn-primary btn-block">Guardar</button>
@@ -79,32 +103,73 @@
   </form>
 </template>
 <script lang="ts" setup>
-import { ref, toRef } from 'vue';
+import { ref, toRef, computed, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
+import { required, helpers, email } from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
 import flatPickr from 'vue-flatpickr-component';
-import "flatpickr/dist/flatpickr.css";
-import { Empleado } from '../../../interfaces/Empleados';
-import { useEmpleados } from '../../../composables';
+import { Empleado, EmpleadoRequest } from '../../../interfaces/Empleados';
 import { useEmpleadosStored } from '../../../stored/useEmpleadosStored';
+import "flatpickr/dist/flatpickr.css";
 
 //const { guardarEmpleado } = useEmpleados();
-const { guardarEmpleado, actualizaEmpleado } = useEmpleadosStored()
+const stored = useEmpleadosStored();
+const { empleado } = storeToRefs(stored);
 
 const dateConfig = ref({
   dateFormat: "Y-m-d",
   enableTime: false,
   placeholder: "Fecha de contratacion"
 })
-const props = defineProps(['empleado'])
-const empleadoProp = toRef(props, 'empleado');
+/* const props = defineProps(['empleado'])
+const empleadoProp = toRef(props, 'empleado'); */
 const emit = defineEmits(['cerrarModal'])
 
-const enviarForm = async() => {
-  const emp = empleadoProp.value;
+const form = reactive({
+  nombre:'',
+  apellido:'',
+  telefono:'',
+  email: '',
+  fechaContratacion: null,
+  direccion: ''
+});
 
-  if(emp.empleadoId){
-    await actualizaEmpleado(emp.empleadoId, emp);
+const rules = computed(() => {
+    return {
+        nombre: {
+            required: helpers.withMessage('Nombre es requerido', required)
+        },
+        apellido: {
+            required: helpers.withMessage('Apellido es requerido', required)
+        },
+        telefono: {
+            required: helpers.withMessage('Telefono es requerido', required)
+        },
+        email: {
+            required: helpers.withMessage('Email es requerido', required),
+            email: helpers.withMessage('Email no es valido', email)
+        },
+        fechaContratacion: {
+            required: helpers.withMessage('Fecha de Contratacion es requerido', required)
+        },
+        direccion: {
+            required: helpers.withMessage('Direccion es requerido', required)
+        },
+    }
+})
+
+const $v = useVuelidate(rules, empleado);
+
+const enviarForm = async() => {
+  $v.value.$validate();
+
+  if ($v.value.$error) {
+    return;
+  }
+  if(empleado.value.empleadoId){
+    await stored.actualizaEmpleado(empleado.value.empleadoId, empleado.value);
   }else{
-    await guardarEmpleado(empleadoProp.value);
+    await stored.guardarEmpleado(empleado.value);
   }
 
   emit("cerrarModal");

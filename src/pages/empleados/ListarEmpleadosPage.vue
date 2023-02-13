@@ -3,7 +3,7 @@
   
   <div v-if="empleados.length > 0">
     <button type="button" class="btn btn-success" 
-    data-bs-toggle="modal" data-bs-target="#modalForm" @click="empleadoEdit = {}">Nuevo</button>
+    data-bs-toggle="modal" data-bs-target="#modalForm" @click="stored.setInicialEmpleado">Nuevo</button>
     <table class="table">
     <thead>
       <tr>
@@ -19,10 +19,10 @@
         <th scope="row">{{ empleado.empleadoId }}</th>
         <td>{{ empleado.nombreCompleto }}</td>
         <td>{{ empleado.telefono }}</td>
-        <td>{{ empleado.fechaContratacion }}</td>
+        <td>{{ formatoFechas(empleado.fechaContratacion) }}</td>
         <th>
           <button class="btn btn-info" data-bs-toggle="modal" 
-          data-bs-target="#modalForm" @click="sendEmpleado(empleado)">Editar</button>
+          data-bs-target="#modalForm" @click="stored.setEmpleado(empleado)">Editar</button>
         </th>
       </tr>
     </tbody>
@@ -31,25 +31,23 @@
   <div class="alert alert-warning mt-3" v-else>
     <h5>No ya datos</h5>
   </div>
-  <ModalForm :modalTitulo="'Nuevo'">
-    <FormEmpleado :empleado="empleadoEdit" @cerrar-modal="obtenerEmpleados" />
+ <ModalForm :modalTitulo="'Nuevo'">
+    <FormEmpleado @cerrar-modal="stored.obtenerEmpleados" />
   </ModalForm>
 </template>
 <script lang="ts" setup>
 import { onBeforeMount, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import ModalForm from '../../components/shared/ModalForm.vue';
 import FormEmpleado from './components/FormEmpleado.vue';
-import { useEmpleados } from '../../composables';
-import { Empleado } from '../../interfaces/Empleados';
+import { useEmpleadosStored } from '../../stored/useEmpleadosStored';
+import { useHelpers } from '../../composables/useHelpers'
 
-const { empleados, obtenerEmpleados } = useEmpleados();
-const empleadoEdit = ref({});
+const { formatoFechas } = useHelpers();
+const stored = useEmpleadosStored();
+const { empleados } = storeToRefs(stored);
 
 onBeforeMount(async () => {
-  await obtenerEmpleados();
+  await stored.obtenerEmpleados();
 })
-
-const sendEmpleado = (empleado:Empleado) => {
-  empleadoEdit.value = empleado;
-}
 </script>
